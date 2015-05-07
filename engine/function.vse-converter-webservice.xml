@@ -1,0 +1,338 @@
+<function max-elt-id="1841" name="vse-converter-webservice" type="converter" modified-by="oehlschlager@IBM Watson Group" type-in="application/vxml-unnormalized" type-out="application/vxml-unnormalized" modified="1429637002">
+  <prototype>
+    <description name="description">
+      Web services often offer text analysis functions that can enrich your documents. This converter accesses web service functions via their REST API and adds the response to your document in a content which you may optionally post-process in your own custom converter.
+    </description>
+    <label name="label">Web Services</label>
+
+    <declare type="url" name="ws-url" required="required">
+      <label name="label">Web Service endpoint URL</label>
+      <description name="description">The REST endpoint for the web service.
+      </description>
+    </declare>
+    <declare type="enum" name="ws-method" enum-values="POST|GET" initial-value="POST">
+      <label name="label">HTTP Method</label>
+      <description name="description">The HTTP method used when fetching the web service REST URL.  Note that limits on the size of POST data are typically greater than limits on the size of URLs (GET).</description>
+    </declare>
+    <declare type="separated-set" type-separator="&#10;" name="ws-contents">
+      <label>Contents to send as name/value pairs</label>
+      <description>Provide a newline-separated list of the names of contents whose names and values will be submitted as the parameter names and values in the web service call.  For example, if you list<p />
+        <incode>author</incode><p />
+        <incode>snippet</incode><p />
+      then the final web service call would include the following parameter name/value pairs<p />
+        <incode><![CDATA[&author={content[@name="author"]/text()}]]><p /><![CDATA[&snippet={content[@name="snippet"]/text()}]]></incode>
+        <p />
+      It is recommended that you configure a custom converter that is run <i>before</i> this one to pre-process your document's text into the appropriate contents.
+      </description>
+    </declare>
+    <declare type="nmtoken" name="response-content" initial-value="webservice-response">
+      <label name="label">Web Service response content name</label>
+      <description>Provide a string that will be used as the name of a new content output from this converter which contains the complete webservice response.<p />
+      If necessary, you may create a new custom converter that is run <i>after</i> this one to further process the response. You may find <incode>viv:string-to-node()</incode> convenient for post-processing if the web service response is XML.  See the Watson Explorer Engine XSL Extensions documentation for more information on this function.<p />
+      Finally, consider whether it is appropriate to retain or discard any contents that were originally created only for the purpose of web service input, and handle them appropriately in your post-processing custom converter.</description>
+    </declare>
+
+    <proto-section section="Advanced HTTP Config" toggle-section="toggle-section">
+    <declare type="string" name="ws-http-user">
+      <label name="label">HTTP Auth username</label>
+      <description name="description">Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
+    </declare>
+    <declare type="password" name="ws-http-pass">
+      <label name="label">HTTP Auth password</label>
+      <description name="description">Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
+    </declare>
+    <declare type="string" name="ws-proxy-host-port">
+      <label name="label">Proxy server (host:port)</label>
+      <description name="description">This sets a proxy server through which all web service calls will be directed.  It is recommended that a local caching proxy be used to improve performance and reduce the total number of web service calls.</description>
+    </declare>
+    <declare type="user-password" name="ws-proxy-user-pass">
+      <label name="label">Proxy username and password</label>
+      <description name="description">Provide the credentials used to authenticate to the proxy server configured above.</description>
+    </declare>
+    <declare type="number" name="ws-timeout" initial-value="60" units="seconds">
+      <label name="label">Timeout</label>
+      <description name="description">This sets the amount of time, in seconds, to wait for a response from the web service call.</description>
+    </declare>
+    <declare type="string-area" name="ws-headers">
+      <label name="label">Additional headers</label>
+      <description name="description">Watson Explorer sends default HTTP headers.  Provide here any additional HTTP headers to be sent with the request.  Any header provided here which duplicates a default header will override the default header.  Duplicate headers will not be sent.  Use the common newline-separated HTTP header format:<p />
+      <incode>Headername1: headervalue1<p />
+      Headername2: headervalue2<p /></incode></description>
+    </declare>
+    <declare type="nmtoken" name="ws-ssl-cert">
+      <label name="label">SSL certificate location</label>
+      <description name="description">Full path to a file containing an SSL certificate to be used for HTTPS connections. This may or may not contain a private key.</description>
+    </declare>
+    <declare type="enum" name="ws-ssl-cert-type" enum-values="|PEM|ENG|DER">
+      <label name="label">SSL certificate type</label>
+      <description name="description">Type of the SSL certificate.</description>
+    </declare>
+    <declare type="nmtoken" name="ws-ssl-key">
+      <label name="label">SSL private key location</label>
+      <description name="description">Full path to a file containing an SSL private key to be used for HTTPS connections.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
+    </declare>
+    <declare type="enum" name="ws-ssl-key-type" enum-values="|PEM|ENG|DER">
+      <label name="label">SSL private key type</label>
+      <description name="description">Type of the SSL private key.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
+    </declare>
+    <declare type="password" name="ws-ssl-key-pass">
+      <label name="label">SSL key (or cert) password</label>
+      <description name="description">Password used to read the private key file (or the certificate file when it contains the private key).</description>
+    </declare>
+    <declare type="flag" name="ws-ssl-verify-peer">
+      <label name="label">Verify peer</label>
+      <description name="description">Determines whether Watson Explorer verifies the authenticity of the peer's certificate. When negotiating an SSL connection, the server sends a certificate indicating its identity. Watson Explorer verifies whether the certificate is authentic, i.e. that you can trust that the server is who the certificate says it is. This trust is based on a chain of digital signatures, rooted in certification authority (CA) certificates supplied in <incode>Engine/data/static/ca-bundle.crt</incode></description>
+    </declare>
+    <declare type="flag" name="ws-debug">
+      <label name="label">Enable debug contents</label>
+      <description name="description">If debug contents are enabled, contents containing details of the web service connection attempt will be added to the document.  This is useful for debugging, but it may not be as valuable in your final crawl.</description>
+    </declare>
+    </proto-section>
+
+  </prototype>
+
+  <parser type="xsl">
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-url</with>
+      <with name="value">
+        <if-var name="ws-url">
+          <value-of-var name="ws-url" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-method</with>
+      <with name="value">
+        <if-var name="ws-method">
+          <value-of-var name="ws-method" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-contents</with>
+      <with name="value">
+        <if-var name="ws-contents">
+          <value-of-var name="ws-contents" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-timeout</with>
+      <with name="value">
+        <if-var name="ws-timeout">
+          <value-of-var name="ws-timeout" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-http-user</with>
+      <with name="value">
+        <if-var name="ws-http-user">
+          <value-of-var name="ws-http-user" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-http-pass</with>
+      <with name="value">
+        <if-var name="ws-http-pass">
+          <value-of-var name="ws-http-pass" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-proxy-host-port</with>
+      <with name="value">
+        <if-var name="ws-proxy-host-port">
+          <value-of-var name="ws-proxy-host-port" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-proxy-user-pass</with>
+      <with name="value">
+        <if-var name="ws-proxy-user-pass">
+          <value-of-var name="ws-proxy-user-pass" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-headers</with>
+      <with name="value">
+        <if-var name="ws-headers">
+          <value-of-var name="ws-headers" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-debug</with>
+      <with name="value">
+        <if-var name="ws-debug">
+          <value-of-var name="ws-debug" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">response-content</with>
+      <with name="value">
+        <if-var name="response-content">
+          <value-of-var name="response-content" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-cert</with>
+      <with name="value">
+        <if-var name="ws-ssl-cert">
+          <value-of-var name="ws-ssl-cert" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-cert-type</with>
+      <with name="value">
+        <if-var name="ws-ssl-cert-type">
+          <value-of-var name="ws-ssl-cert-type" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-key</with>
+      <with name="value">
+        <if-var name="ws-ssl-key">
+          <value-of-var name="ws-ssl-key" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-key-type</with>
+      <with name="value">
+        <if-var name="ws-ssl-key-type">
+          <value-of-var name="ws-ssl-key-type" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-key-pass</with>
+      <with name="value">
+        <if-var name="ws-ssl-key-pass">
+          <value-of-var name="ws-ssl-key-pass" />
+        </if-var>
+      </with>
+    </call-function>
+    <call-function name="xsl-parser-variable">
+      <with name="name">ws-ssl-verify-peer</with>
+      <with name="value">
+        <if-var name="ws-ssl-verify-peer">
+          <value-of-var name="ws-ssl-verify-peer" />
+        </if-var>
+      </with>
+    </call-function><![CDATA[
+
+<xsl:variable name="apos">'</xsl:variable>
+<xsl:variable name="sgts"> &gt; </xsl:variable>
+
+<xsl:template match="/">
+  <!-- copy the input -->
+  <xsl:apply-templates mode="copy" />
+</xsl:template>
+
+<xsl:template match="@*|node()" mode="copy" >
+  <xsl:copy>
+    <xsl:apply-templates select="@*|node()" mode="copy"/>
+  </xsl:copy>
+</xsl:template>
+
+<xsl:template match="document" mode="copy" >
+<!-- when we have a document element, we want to copy it too,
+but we also want to make the web service call -->
+  <xsl:copy>
+    <xsl:apply-templates select="@*|node()" mode="copy" />
+
+    <!-- That takes care of the document element and children, now enrich it with the web service response -->
+
+  <xsl:variable name="timeout" select="$ws-timeout * 1000" />
+  <xsl:variable name="xml">
+    <parse url="{$ws-url}" method="{$ws-method}">
+      <xsl:if test="$ws-http-user" >
+        <attribute name="username" value="{$ws-http-user}" />
+      </xsl:if>
+      <xsl:if test="$ws-http-pass" >
+        <attribute name="password" value="{$ws-http-pass}" />
+      </xsl:if>
+      <xsl:if test="$ws-proxy-host-port" >
+        <attribute name="proxy" value="{$ws-proxy-host-port}" />
+      </xsl:if>
+      <xsl:if test="$ws-proxy-user-pass" >
+        <attribute name="proxy-user-password" value="{$ws-proxy-user-pass}" />
+      </xsl:if>
+      <xsl:if test="$ws-headers" >
+        <attribute name="headers" value="{$ws-headers}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-cert" >
+        <attribute name="ssl-cert" value="{$ws-ssl-cert}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-cert-type" >
+        <attribute name="ssl-cert-type" value="{$ws-ssl-cert-type}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-key" >
+        <attribute name="ssl-key" value="{$ws-ssl-key}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-key-type" >
+        <attribute name="ssl-key-type" value="{$ws-ssl-key-type}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-key-pass" >
+        <attribute name="ssl-key-password" value="{$ws-ssl-key-pass}" />
+      </xsl:if>
+      <xsl:if test="$ws-ssl-verify-peer" >
+        <attribute name="ssl-verify-peer" value="ssl-verify-peer" />
+      </xsl:if>
+
+      <xsl:variable name="ws-contents-padded" select="concat('&#10;', $ws-contents, '&#10;')" />
+      <xsl:for-each select="content" >
+        <xsl:if test="contains($ws-contents-padded, concat('&#10;', @name, '&#10;'))" >
+          <parse-param name="{@name}">
+            <attribute name="value">
+              <xsl:value-of select="text()" />
+            </attribute>
+          </parse-param>
+        </xsl:if>
+      </xsl:for-each>
+      <!-- parser type="html-xsl" name="ws-parser" >
+  &lt;xsl:template match="/"&gt;
+    &lt;xsl:copy-of select="."/&gt;
+  &lt;/xsl:template&gt;
+      </parser -->
+      </parse>
+    <fetch finish="finish" timeout="{$timeout}" />
+  </xsl:variable>
+
+  <!-- execute the fetch pointing at the web service -->
+  <xsl:variable name="r" select="viv:process-xml($xml)" />
+
+  <!-- check the results from the web service and add appropriate contents -->
+ 
+  <content name="{$response-content}" action="none" type="text">
+    <xsl:value-of select="viv:node-to-string($r)" />
+  </content>
+  <xsl:if test="$ws-debug" >
+    <content name="webservice-debug-parse-url" action="none" type="text" >
+      <xsl:value-of select="$r/parse/@url" />
+    </content>
+    <content name="webservice-debug-parse-http-status" action="none" type="text" >
+      <xsl:value-of select="$r/parse/@http-status" />
+    </content>
+    <content name="webservice-debug-parse-status" action="none" type="text" >
+      <xsl:value-of select="$r/parse/@status" />
+    </content>
+    <content name="webservice-debug-parse-message" action="none" type="text" >
+      <xsl:value-of select="$r/parse/@message" />
+    </content>
+  </xsl:if>
+ 
+  </xsl:copy>
+</xsl:template>
+
+
+]]></parser>
+</function>
