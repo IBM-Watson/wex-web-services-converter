@@ -1,6 +1,6 @@
 # Using the Watson Explorer Engine Web Services Converter
 
-[IBM Watson Explorer](http://www.ibm.com/smarterplanet/us/en/ibmwatson/explorer.html) combines content and data from many different systems throughout the enterprise and presents it to users in a single view, dramatically reducing the amount of time spent looking for information and increasing their ability to work smarter. Explorer’s 360-degree information applications deliver data, analytics, and cognitive insights relevant to the user’s role, context and current activities. These applications can be enhanced using content from external sources, external visualization libraries (such as D3.js), and external APIs. Integrating with external services like those available in the [Watson Developer Cloud](http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/) provides opportunities for further enhancing Watson Explorer applications to include cognitive-based features.
+[IBM Watson Explorer](http://www.ibm.com/smarterplanet/us/en/ibmwatson/explorer.html) combines content and data from many different systems throughout the enterprise and presents it to users in a single view, dramatically reducing the amount of time spent looking for information and increasing their ability to work smarter. Watson Explorer’s 360-degree information applications deliver data, analytics, and cognitive insights relevant to the user’s role, context and current activities. These applications can be enhanced using content from external sources, external visualization libraries (such as D3.js), and external APIs. Integrating with external services like those available in the [Watson Developer Cloud](http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/) provides opportunities for further enhancing Watson Explorer applications to include cognitive-based features.
 
 With the Watson Explorer Engine Web Services Converter described here, the process for augmenting data with content and analysis from external web services during ingestion is generalized for use with nearly any web service.  While the Watson Explorer Engine Web Services Converter can be used to interact with a wide variety of web services, this documentation also walks through a specific example where we configure the Web Services Converter for use with the [Watson Developer Cloud Relationship Extraction service](http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/relationship-extraction.html).  We then provide you with some food for thought &mdash; What should you think about when deploying this kind of integration into a production environment?  What are some additional ideas for integration? 
 
@@ -8,7 +8,7 @@ By the end of this example you should understand what the Watson Explorer Engine
 
 ## Architecture
 
-The Watson Explorer Engine Web Services Converter is a [converter](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.doc/c_vse_converting.html) like any other that processes text to be indexed at ingestion time.  When the Web Services Converter is configured properly, it will send administrator-defined name-value pairs as CGI parameters to a REST-based web service.  The response from the REST web service is then stored in its entirety in a new administrator-specified [`<content>`](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.schema.doc/r_schema-ref-element-content.html) element.  The Web Services Converter is designed to work in conjunction with **two** [custom converters](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.doc/c_vse_converting_custom.html) which handle
+The Watson Explorer Engine Web Services Converter is a [converter](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.doc/c_vse_converting.html) like any other that processes text to be indexed at ingestion time.  When the Web Services Converter is configured properly, it will send administrator-defined name-value pairs as CGI parameters to a REST-based web service.  The response from the REST web service is then stored in its entirety in a new administrator-specified [`<content>`](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.schema.doc/r_schema-ref-element-content.html) element.  The Web Services Converter is designed to work in conjunction with **two** [custom converters](http://www.ibm.com/support/knowledgecenter/SS8NLW_10.0.0/com.ibm.swg.im.infosphere.dataexpl.engine.doc/c_vse_converting_custom.html) which handle:
 
  * The pre-processing of text to prepare the name-value pairs for consumption by the web service.  The output of the custom converter responsible for pre-processing should contain a `<content>` for each CGI parameter to be sent to the configured web service.  The name and value of the `<content>` will be sent as a CGI parameter name and value.
  * The post-processing of the web service response.  The complete web service response is stored in a `<content>`.  Under most circumstances, the web service response needs to be processed and transformed into Watson Explorer Engine XML (*VXML*) to be useful.  It is also likely that some `<content>` elements can be discarded at this time, like the `<content>` containing the original web service response and any `<content>` whose only purpose was to represent a CGI parameter for the web service call.
@@ -33,18 +33,18 @@ The Web Services Converter is XML, so it can be added to your Engine installatio
 
  1. Navigate to the [Web Services Converter XML source](/engine/function.vse-converter-webservice.xml), select and copy all the XML there.
  2. Navigate to your Watson Explorer Engine administrative interface.  Select the "Configuration" menu.  Click the "+" next to the "XML" item in the left menu to add new XML.
- 3. You will be prompted to provide an Element and Name.  Enter "function" and "vse-converter-webservice" respectively, without quotes.  Click the [Add] button at right.
- 4. You will see minimal XML representing the new function.  Select the minimal XML and then paste the Web Services Converter XML which you copied in step 1.  Click the [OK] button at right.
+ 3. You will be prompted to provide an Element and Name.  Enter "function" and "vse-converter-webservice" respectively, without quotes.  Click the **Add** button at right.
+ 4. You will see minimal XML representing the new function.  Select the minimal XML and then paste the Web Services Converter XML which you copied in step 1.  Click the **OK** button at right.
 
 There are alternative methods for adding XML to your Engine installation, including via the repository-supplements directory, via peer repository configuration, and via the repository-add API function, but explanation of those methods is beyond the scope of this example.
 
 ### Create a new collection with the Web Services Converter
 
  1. Navigate to your Watson Explorer Engine administrative interface.  Select the "Configuration" menu.  Click the "+" next to the "Search Collections" item in the left menu to create a new collection.
- 2. For "Copy defaults from" select "example-metadata".  This allows us to start with a pre-configured small example collection.  Name the collection and click the [Add] button at right.
- 3. Select your collection's "Configuration" and then the "Converting" tab.  Click the [Add a new converter] button.  Scroll down and select the "Web Services" converter and click [Add].
+ 2. For "Copy defaults from" select "example-metadata".  This allows us to start with a pre-configured small example collection.  Name the collection and click the **Add** button at right.
+ 3. Select your collection's "Configuration" and then the "Converting" tab.  Click the **Add a new converter** button.  Scroll down and select the "Web Services" converter and click **Add**.
  4. In the "Web Service endpoint URL" text box, supply the endpoint URL for your application which exposes the Relationship Extraction service.
- 5. In the "Contents to send as name/value pairs" text area, enter "sid" and "text" on different lines without quotes.  Click the [OK] button at right.
+ 5. In the "Contents to send as name/value pairs" text area, enter "sid" and "text" on different lines without quotes.  Click the **OK** button at right.
 
 ### Create the custom converter which pre-processes text
 
@@ -55,7 +55,7 @@ The Relationship Extraction service expects two parameters: "sid" and "text".
  * The value of "sid" identifies the training set that the service uses.  Currently, values may be either "ie-en-news" or "ie-es-news".
  * The value of "text" is the complete text from which you want to extract relationships.
 
-To prepare the data for use by the Web Services converter, we must create a custom converter that
+To prepare the data for use by the Web Services converter, we must create a custom converter that:
 
  1. Copies all input to the output.  This should preserve all XML input, including all XML elements and their attributes.
  2. Generates new `<content>` elements.  One new `<content>` should be created for each CGI parameter that must be sent to the web service.
@@ -104,13 +104,13 @@ The following XSL can be dropped into a custom converter to accomplish this.  Th
 
 To create a custom converter with the above XSL, follow these steps:
 
- 1. Click the [Add a new converter] button, select "Custom converter", and click [Add].
+ 1. Click the **Add a new converter** button, select "Custom converter", and click **Add**.
  2. For "Type-In" select "application/vxml-unnormalized".
  3. For "Type-Out" select "application/vxml-unnormalized".
  4. Give your converter a name, for example "Pre-processor for web service"
  5. For "Action" select "xsl".
  6. Paste the above XSL into the text area.
- 7. Click the [OK] button at right.
+ 7. Click the **OK** button at right.
  8. Ensure that the new "Pre-processor for web service" converter appears in the converter list **prior** to the Web Services converter.
 
 ### Create the custom converter which post-processes the response
@@ -170,24 +170,24 @@ The following XSL can be dropped into a custom converter to accomplish this.  Th
 
 To create a custom converter with the above XSL, follow these steps:
 
- 1. Click the [Add a new converter] button, select "Custom converter", and click [Add].
+ 1. Click the **Add a new converter** button, select "Custom converter", and click **Add**.
  2. For "Type-In" select "application/vxml-unnormalized".
  3. For "Type-Out" select "application/vxml-unnormalized".
  4. Give your converter a name, for example "Post-processor for web service"
  5. For "Action" select "xsl".
  6. Paste the above XSL into the text area.
- 7. Click the [OK] button at right.
+ 7. Click the **OK** button at right.
  8. Ensure that the new "Post-processor for web service" converter appears in the converter list **after** the Web Services converter.  Drag the number to the left of the post-processing converter to move it down below the Web Services converter.
 
 ### Crawl the collection
 
 Your collection is now configured to crawl the metadata tutorial documents and enrich those documents with analysis from the Watson Developer Cloud Relationship Extraction service.
 
-Before starting any crawl however, it is always a good idea to navigate to the overview tab of your collection and click the [Test it] button.  Do that now and you should see all of the files in the metadata tutorial enqueued.  Click the [Test it] button across from any of the files and that file should be fetched and processed by the conversion framework.  You should see each of the three converters you added active in the conversion trace.
+Before starting any crawl however, it is always a good idea to navigate to the overview tab of your collection and click the **Test it** button.  Do that now and you should see all of the files in the metadata tutorial enqueued.  Click the **Test it** button across from any of the files and that file should be fetched and processed by the conversion framework.  You should see each of the three converters you added active in the conversion trace.
 
 In particular, notice that the Web Services converter added data.  Click on the number representing the size of the output from the Web Services converter.  You will be taken to a new tab containing the VXML output of the Web Services converter.  Here you will find VXML that would normally be indexed during the metadata example crawl, as well as the "sid", "text", and "webservice-response" `<content>`s.  Confirm that the text in the "webservice-response" `<content>` contains what you would expect to see as a response from your web service.
 
-If the conversion details revealed by [Test it] look good, navigate back to the overview tab of your collection and start a crawl.  When the crawl completes, perform a search in your collection, turn on debugging, and expose the XML for a result by clicking the [XML] button in the result's footer.  You will find all the `<content>` elements that normally appear in the metadata example crawl, as well as new `<content>` elements that represent the entities and relationships discovered by the Watson Developer Cloud Relationship Extraction service!
+If the conversion details revealed by **Test it** look good, navigate back to the overview tab of your collection and start a crawl.  When the crawl completes, perform a search in your collection, turn on debugging, and expose the XML for a result by clicking the [XML] button in the result's footer.  You will find all the `<content>` elements that normally appear in the metadata example crawl, as well as new `<content>` elements that represent the entities and relationships discovered by the Watson Developer Cloud Relationship Extraction service!
 
 ## Production and Deployment Considerations
 
