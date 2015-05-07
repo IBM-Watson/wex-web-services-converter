@@ -181,7 +181,7 @@ To create a custom converter with the above XSL, follow these steps:
 
 ### Crawl the collection
 
-Your collection is now configured to crawl the metadata tutorial documents and enrich those documents with analysis from the Watson Developer Cloud Relationship Extraction service.
+Your collection is now configured to crawl the metadata tutorial documents and enrich those documents with analysis from the **Watson Developer Cloud Relationship Extraction** service.
 
 Before starting any crawl however, it is always a good idea to navigate to the overview tab of your collection and click the **Test it** button.  Do that now and you should see all of the files in the metadata tutorial enqueued.  Click the **Test it** button across from any of the files and that file should be fetched and processed by the conversion framework.  You should see each of the three converters you added active in the conversion trace.
 
