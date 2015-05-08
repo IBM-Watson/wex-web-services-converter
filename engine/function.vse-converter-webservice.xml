@@ -1,4 +1,4 @@
-<function max-elt-id="1841" name="vse-converter-webservice" type="converter" modified-by="oehlschlager@IBM Watson Group" type-in="application/vxml-unnormalized" type-out="application/vxml-unnormalized" modified="1429637002">
+<function name="vse-converter-webservice" type="converter" type-in="application/vxml-unnormalized" type-out="application/vxml-unnormalized" products="all">
   <prototype>
     <description name="description">
       Web services often offer text analysis functions that can enrich your documents. This converter accesses web service functions via their REST API and adds the response to your document in a content which you may optionally post-process in your own custom converter.
