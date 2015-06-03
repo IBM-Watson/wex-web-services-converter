@@ -1,18 +1,18 @@
 <function name="vse-converter-webservice" type="converter" type-in="application/vxml-unnormalized" type-out="application/vxml-unnormalized" products="all">
   <prototype>
-    <description name="description">
+    <description>
       Web services often offer text analysis functions that can enrich your documents. This converter accesses web service functions via their REST API and adds the response to your document in a content which you may optionally post-process in your own custom converter.
     </description>
-    <label name="label">Web Services</label>
+    <label>Web Services</label>
 
     <declare type="url" name="ws-url" required="required">
-      <label name="label">Web Service endpoint URL</label>
-      <description name="description">The REST endpoint for the web service.
+      <label>Web Service endpoint URL</label>
+      <description>The REST endpoint for the web service.
       </description>
     </declare>
     <declare type="enum" name="ws-method" enum-values="POST|GET" initial-value="POST">
-      <label name="label">HTTP Method</label>
-      <description name="description">The HTTP method used when fetching the web service REST URL.  Note that limits on the size of POST data are typically greater than limits on the size of URLs (GET).</description>
+      <label>HTTP Method</label>
+      <description>The HTTP method used when fetching the web service REST URL.  Note that limits on the size of POST data are typically greater than limits on the size of URLs (GET).</description>
     </declare>
     <declare type="separated-set" type-separator="&#10;" name="ws-contents">
       <label>Contents to send as name/value pairs</label>
@@ -26,7 +26,7 @@
       </description>
     </declare>
     <declare type="nmtoken" name="response-content" initial-value="webservice-response">
-      <label name="label">Web Service response content name</label>
+      <label>Web Service response content name</label>
       <description>Provide a string that will be used as the name of a new content output from this converter which contains the complete webservice response.<p />
       If necessary, you may create a new custom converter that is run <i>after</i> this one to further process the response. You may find <incode>viv:string-to-node()</incode> convenient for post-processing if the web service response is XML.  See the Watson Explorer Engine XSL Extensions documentation for more information on this function.<p />
       Finally, consider whether it is appropriate to retain or discard any contents that were originally created only for the purpose of web service input, and handle them appropriately in your post-processing custom converter.</description>
@@ -34,58 +34,58 @@
 
     <proto-section section="Advanced HTTP Config" toggle-section="toggle-section">
     <declare type="string" name="ws-http-user">
-      <label name="label">HTTP Auth username</label>
-      <description name="description">Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
+      <label>HTTP Auth username</label>
+      <description>Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
     </declare>
     <declare type="password" name="ws-http-pass">
-      <label name="label">HTTP Auth password</label>
-      <description name="description">Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
+      <label>HTTP Auth password</label>
+      <description>Provide the HTTP authentication credentials used to authenticate to the web service URL if necessary.</description>
     </declare>
     <declare type="string" name="ws-proxy-host-port">
-      <label name="label">Proxy server (host:port)</label>
-      <description name="description">This sets a proxy server through which all web service calls will be directed.  It is recommended that a local caching proxy be used to improve performance and reduce the total number of web service calls.</description>
+      <label>Proxy server (host:port)</label>
+      <description>This sets a proxy server through which all web service calls will be directed.  It is recommended that a local caching proxy be used to improve performance and reduce the total number of web service calls.</description>
     </declare>
     <declare type="user-password" name="ws-proxy-user-pass">
-      <label name="label">Proxy username and password</label>
-      <description name="description">Provide the credentials used to authenticate to the proxy server configured above.</description>
+      <label>Proxy username and password</label>
+      <description>Provide the credentials used to authenticate to the proxy server configured above.</description>
     </declare>
     <declare type="number" name="ws-timeout" initial-value="60" units="seconds">
-      <label name="label">Timeout</label>
-      <description name="description">This sets the amount of time, in seconds, to wait for a response from the web service call.</description>
+      <label>Timeout</label>
+      <description>This sets the amount of time, in seconds, to wait for a response from the web service call.</description>
     </declare>
     <declare type="string-area" name="ws-headers">
-      <label name="label">Additional headers</label>
-      <description name="description">Watson Explorer sends default HTTP headers.  Provide here any additional HTTP headers to be sent with the request.  Any header provided here which duplicates a default header will override the default header.  Duplicate headers will not be sent.  Use the common newline-separated HTTP header format:<p />
+      <label>Additional headers</label>
+      <description>Watson Explorer sends default HTTP headers.  Provide here any additional HTTP headers to be sent with the request.  Any header provided here which duplicates a default header will override the default header.  Duplicate headers will not be sent.  Use the common newline-separated HTTP header format:<p />
       <incode>Headername1: headervalue1<p />
       Headername2: headervalue2<p /></incode></description>
     </declare>
     <declare type="nmtoken" name="ws-ssl-cert">
-      <label name="label">SSL certificate location</label>
-      <description name="description">Full path to a file containing an SSL certificate to be used for HTTPS connections. This may or may not contain a private key.</description>
+      <label>SSL certificate location</label>
+      <description>Full path to a file containing an SSL certificate to be used for HTTPS connections. This may or may not contain a private key.</description>
     </declare>
     <declare type="enum" name="ws-ssl-cert-type" enum-values="|PEM|ENG|DER">
-      <label name="label">SSL certificate type</label>
-      <description name="description">Type of the SSL certificate.</description>
+      <label>SSL certificate type</label>
+      <description>Type of the SSL certificate.</description>
     </declare>
     <declare type="nmtoken" name="ws-ssl-key">
-      <label name="label">SSL private key location</label>
-      <description name="description">Full path to a file containing an SSL private key to be used for HTTPS connections.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
+      <label>SSL private key location</label>
+      <description>Full path to a file containing an SSL private key to be used for HTTPS connections.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
     </declare>
     <declare type="enum" name="ws-ssl-key-type" enum-values="|PEM|ENG|DER">
-      <label name="label">SSL private key type</label>
-      <description name="description">Type of the SSL private key.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
+      <label>SSL private key type</label>
+      <description>Type of the SSL private key.<p /><b>Note:</b> If your certificate contains the private key, leave this blank.</description>
     </declare>
     <declare type="password" name="ws-ssl-key-pass">
-      <label name="label">SSL key (or cert) password</label>
-      <description name="description">Password used to read the private key file (or the certificate file when it contains the private key).</description>
+      <label>SSL key (or cert) password</label>
+      <description>Password used to read the private key file (or the certificate file when it contains the private key).</description>
     </declare>
     <declare type="flag" name="ws-ssl-verify-peer">
-      <label name="label">Verify peer</label>
-      <description name="description">Determines whether Watson Explorer verifies the authenticity of the peer's certificate. When negotiating an SSL connection, the server sends a certificate indicating its identity. Watson Explorer verifies whether the certificate is authentic, i.e. that you can trust that the server is who the certificate says it is. This trust is based on a chain of digital signatures, rooted in certification authority (CA) certificates supplied in <incode>Engine/data/static/ca-bundle.crt</incode></description>
+      <label>Verify peer</label>
+      <description>Determines whether Watson Explorer verifies the authenticity of the peer's certificate. When negotiating an SSL connection, the server sends a certificate indicating its identity. Watson Explorer verifies whether the certificate is authentic, i.e. that you can trust that the server is who the certificate says it is. This trust is based on a chain of digital signatures, rooted in certification authority (CA) certificates supplied in <incode>Engine/data/static/ca-bundle.crt</incode></description>
     </declare>
     <declare type="flag" name="ws-debug">
-      <label name="label">Enable debug contents</label>
-      <description name="description">If debug contents are enabled, contents containing details of the web service connection attempt will be added to the document.  This is useful for debugging, but it may not be as valuable in your final crawl.</description>
+      <label>Enable debug contents</label>
+      <description>If debug contents are enabled, contents containing details of the web service connection attempt will be added to the document.  This is useful for debugging, but it may not be as valuable in your final crawl.</description>
     </declare>
     </proto-section>
 
@@ -311,7 +311,7 @@ but we also want to make the web service call -->
   <xsl:variable name="r" select="viv:process-xml($xml)" />
 
   <!-- check the results from the web service and add appropriate contents -->
- 
+
   <content name="{$response-content}" action="none" type="text">
     <xsl:value-of select="viv:node-to-string($r)" />
   </content>
@@ -329,7 +329,7 @@ but we also want to make the web service call -->
       <xsl:value-of select="$r/parse/@message" />
     </content>
   </xsl:if>
- 
+
   </xsl:copy>
 </xsl:template>
 
